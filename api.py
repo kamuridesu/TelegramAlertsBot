@@ -1,13 +1,17 @@
 from flask import Flask, request, jsonify, redirect
-from bot import send_message
+from telegram.ext import Updater
 
 
 app = Flask(__name__)
 
 
+def send_message(token, chat_id, messag):
+    Updater(token=token, use_context=True).bot.send_message(chat_id=chat_id, text=messag)
+
+
 @app.route("/")
 def hello():
-    return redirect()
+    return redirect("/message")
 
 
 @app.route("/message", methods=['GET'])
@@ -15,7 +19,8 @@ def message():
     try:
         chat_id = request.args.get('chat_id')
         message = request.args.get('message')
-        send_message(chat_id, message)
+        token = request.args.get("token")
+        send_message(token, chat_id, message)
         return jsonify({'status': 'OK'})
     except Exception as e:
         return jsonify({'status': 'ERROR', 'error': str(e)})
